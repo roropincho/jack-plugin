@@ -1,6 +1,6 @@
-<?php 
+<?php
  	/*
-    Plugin Name: jack 
+    Plugin Name: Jack 
     Description: Plugin to show Prêt à vivre form
     Author: Objectif 8
     Version: 1.0.1
@@ -11,18 +11,18 @@
 
 	register_activation_hook(__FILE__, 'my_plugin_activation');
 
-	function my_plugin_activation() {
+	function jack_plugin_activation() {
 		update_option( 'jack_plugin_version', JACK_THEME_VERSION );
 
 		return JACK_THEME_VERSION;
 	}
 
-    function my_plugin_is_current_version(){
+    function jack_plugin_is_current_version(){
         $version = get_option( 'jack_plugin_version' );
         return version_compare($version, JACK_THEME_VERSION, '=') ? true : false;
 	}
 	
-	if ( !my_plugin_is_current_version() ) my_plugin_activation();
+	if ( !jack_plugin_is_current_version() ) jack_plugin_activation();
 
 	add_action( 'wp_enqueue_scripts', 'jackScripts' );
 	add_shortcode('jack_form', 'showForm');
@@ -40,6 +40,8 @@
 		$result = "";
 		
 		if (!empty($attributes["email"])) {
+			$successMsg = "";
+
 			$isFrench = empty($attributes["lang"]) ? true : $attributes["lang"] == "fr";
 
 			$yes = $isFrench ? "Oui" : "Yes";
@@ -51,6 +53,20 @@
 			$title = $isFrench ? "Créer mon" : "Create my";
 			$email = $attributes["email"];
 
+			if (!empty($_POST["jack_form_action"])) {
+				wp_mail($email, "Création prêt à vivre", $_POST["result"]);
+				
+				if (!$isFrench) {
+				   $result .= <<<HTML
+							   <script>window.location.href="http://condopretavivre.com/merci"</script>
+HTML;
+			   }
+			   else {
+				   $result .= <<<HTML
+				   <script>window.location.href="http://condopretavivre.com/en/thanks-you"</script>
+HTML;
+				}
+			}
 			$volets = [
 				[ // 1
 					"intro" => $isFrench ? "Afin de bien cibler vos besoins et de vous offrir un service de qualité, nous vous invitons à répondre à ce court formulaire."
@@ -119,15 +135,19 @@
 				[ // 7
 					"questions" => [
 						[
-							"question" => $isFrench ? "Demande en traitement..." : "Treating request..."
+							"question" => $isFrench ? "Cliquez sur Envoyer pour soumettre vos réponses" : "Click Send to complete form"
 						]
 					],
 					"send" => true
 				]
 			];
 
-			$result = <<<HTML
-			<div id="volet-container" data-email="$email">
+			$result .= <<<HTML
+			<form method="post" action="" id="jack_result_form">
+				<input type="hidden" name="jack_form_action" value="sendResult">
+				<input type="hidden" name="result" value="" id="jack_result_form_result">
+			</form>
+			<div id="volet-container">
 				<h2>$title Prêt à vivre !</h2>
 HTML;
 
@@ -208,16 +228,26 @@ HTML;
 					<div>
 						<p>$whatCoordo</p>
 						<p class="oblig">* $oblig</p>
-						<label for="$name1">$lastName <span class="oblig">*</span></label>
-						<input type="text" name="$name1" id="$name1" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
-						<label for="$name2">$firstName <span class="oblig">*</span></label>
-						<input type="text" name="$name2" id="$name2" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
-						<label for="$name3">$email <span class="oblig">*</span></label>
-						<input type="text" name="$name3" id="$name3" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
-						<label for="$name4">$phone <span class="oblig">*</span></label>
-						<input type="text" name="$name4" id="$name4" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
-						<label for="$name5">$city <span class="oblig">*</span></label>
-						<input type="text" name="$name5" id="$name5" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
+						<div class="line">
+							<label for="$name1">$lastName <span class="oblig">*</span></label>
+							<input type="text" name="$name1" id="$name1" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
+						</div>
+						<div class="line">
+							<label for="$name2">$firstName <span class="oblig">*</span></label>
+							<input type="text" name="$name2" id="$name2" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
+						</div>
+						<div class="line">
+							<label for="$name3">$email <span class="oblig">*</span></label>
+							<input type="text" name="$name3" id="$name3" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
+						</div>
+						<div class="line">
+							<label for="$name4">$phone <span class="oblig">*</span></label>
+							<input type="text" name="$name4" id="$name4" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
+						</div>
+						<div class="line">
+							<label for="$name5">$city <span class="oblig">*</span></label>
+							<input type="text" name="$name5" id="$name5" placeholder="$placeholder" required onfocus="putBackgroundBack(this)">
+						</div>
 					</div>
 					<h3>$sub</h3>
 					<div class="same-line">
