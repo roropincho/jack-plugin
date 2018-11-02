@@ -103,5 +103,17 @@
 #volet-container input[type=text] {
     margin: 10px 0 15px 0;
     max-width: 460px;
+    min-width:250px;
     padding: 10px 15px;
+}
+
+#volet-container .line label {
+    display: inline-block;
+    width:200px;
+}
+
+#volet-container .jack_form_success {
+    background: #43a047 !important;
+    color:white;
+    padding:10px;
 }

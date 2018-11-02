@@ -99,11 +99,9 @@ function send(num) {
 
     emailContent = "Voici toutes les informations fournies:\n\n" + emailContent;
 
-    console.log(emailContent);
-
-    var link = "mailto:" + document.getElementById("volet-container").getAttribute("data-email")
-                + "?subject=" + escape("Nouvelle demande de création de Prêt à vivre")
-                + "&body=" + escape(emailContent);
+    var form = document.getElementById("jack_result_form");
+    document.getElementById("jack_result_form_result").value=escape(emailContent);
+    form.submit();
     
     window.location.href = link;
 }
